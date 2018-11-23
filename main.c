@@ -87,6 +87,7 @@ int main(void)
   ADCSRA |= (1 << ADEN);
   ADCSRA |= (1 << ADSC);
 
+  uint16_t delay;
   while (1)
   {
     while (num_samples < SAMPLES)
@@ -99,10 +100,15 @@ int main(void)
       ADC_data[num_samples].Re -= 512;
       ADC_data[num_samples].Im = 0;
       num_samples += 1;
+
+      /* this is here because my mic is too slow */
+      /* it can and should be removed */
+      for (delay = 0; delay < 800; delay++)
+	asm volatile("nop");
     }
     num_samples = 0;
 
-        /* do FFT */
+    /* do FFT */
     window(ADC_data);
     bit_reversal(ADC_data);
     fft(ADC_data);
