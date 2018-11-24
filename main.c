@@ -80,6 +80,8 @@ int main(void)
   uint16_t num_samples = 0;
 #endif
 
+  uint8_t delay;
+
   /* clears the frame */
   //ssd1306_update_frame(ADC_data);
 
@@ -87,13 +89,17 @@ int main(void)
   ADCSRA |= (1 << ADEN);
   ADCSRA |= (1 << ADSC);
 
-  uint16_t delay;
   while (1)
   {
     while (num_samples < SAMPLES)
     {
       /* wait for ADC */
       while (!(ADCSRA&(1 << ADIF)));
+      /* this is here because my mic is too slow */
+      /* it can and should be removed */
+      for (delay = 0; delay < 200; delay++)
+	asm volatile("nop");
+
       ADC_data[num_samples].Re = ADCL;
       ADC_data[num_samples].Re |= ADCH << 8;
       /* remove the DC bias */
@@ -101,15 +107,12 @@ int main(void)
       ADC_data[num_samples].Im = 0;
       num_samples += 1;
 
-      /* this is here because my mic is too slow */
-      /* it can and should be removed */
-      for (delay = 0; delay < 800; delay++)
-	asm volatile("nop");
     }
     num_samples = 0;
 
     /* do FFT */
-    window(ADC_data);
+    /* no windowing for now */
+    //window(ADC_data);
     bit_reversal(ADC_data);
     fft(ADC_data);
     scale(ADC_data);

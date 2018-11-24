@@ -27,6 +27,7 @@ void window(complex*);
 void fft(complex*);
 void scale(complex*);
 int16_t mul_16_bit(int16_t, int16_t);
+int16_t sqrt_32_bit(uint32_t);
 
 /* main.c */
 void init(void);
