@@ -43,7 +43,7 @@ void window(complex* data)
   }
 }
 
-/* ~10ms with bit inversion */
+/* ~6.8ms with bit inversion */
 /* in place DIT FFT */
 void fft(complex* data)
 {
@@ -66,7 +66,6 @@ void fft(complex* data)
   while (n < SAMPLES)
   {
     a = &data[0];
-    b = &data[n];
     for (i = 0; i < n; i++)
     {
       /* exp(-2*pi*i*k/t) where k = i and t = SAMPLES/sets */
@@ -75,11 +74,28 @@ void fft(complex* data)
       twiddle.Im = sin_table[i*sets];
       for (j = 0; j < sets; j++)
       {
-	coef.Re = mul_16_bit(b->Re, twiddle.Re) \
-	  + mul_16_bit(b->Im, twiddle.Im);
+	b = a + n;
 
-	coef.Im = mul_16_bit(b->Im, twiddle.Re) \
-	  - mul_16_bit(b->Re, twiddle.Im);
+	/* twiddle coefficient is zero */
+	if (!i)
+	{
+	  coef.Re = b->Re;
+	  coef.Im = b->Im;
+	}
+	/* twiddle coefficient is pi/2 */
+	else if (i == n >> 1)
+	{
+	  coef.Re = b->Im;
+	  coef.Im = -b->Re;
+	}
+	else
+	{
+	  coef.Re = mul_16_bit(b->Re, twiddle.Re) \
+	    + mul_16_bit(b->Im, twiddle.Im);
+
+	  coef.Im = mul_16_bit(b->Im, twiddle.Re) \
+	    - mul_16_bit(b->Re, twiddle.Im);
+	}
 
 	b->Re = a->Re - coef.Re;
 	b->Im = a->Im - coef.Im;
@@ -87,10 +103,8 @@ void fft(complex* data)
 	a->Im += coef.Im;
 
 	a += 2*n;
-	b += 2*n;
       }
       a -= SAMPLES - 1;
-      b -= SAMPLES - 1;
     }
     sets >>= 1;
     n <<= 1;
