@@ -9,7 +9,7 @@
 
 void bit_reversal(complex* data)
 {
-#if SAMPLES <= 128
+#if SAMPLES <= 256
   uint8_t i, new;
 #else
   uint16_t i, new;
@@ -111,7 +111,7 @@ void fft(complex* data)
   }
 }
 
-void scale(complex* data)
+void scale(complex* data, int8_t* buffer)
 {
 #if SAMPLES <= 128
   uint8_t i;
@@ -122,8 +122,8 @@ void scale(complex* data)
   uint32_t tmp;
   uint8_t log_2;
   /* just ignore the dc bin for now */
-  data[0].Re = 0;
-  for (i = 1; i < SAMPLES/2; i++)
+  data++;
+  for (i = 0; i < SAMPLES/2 - 1; i++)
   {
     tmp = (uint32_t) abs(data[i].Re) * abs(data[i].Re);
     tmp += (uint32_t) abs(data[i].Im) * abs(data[i].Im);
@@ -133,8 +133,8 @@ void scale(complex* data)
       tmp >>= 1;
       log_2++;
     }
-    data[i].Re = log_2 << 2;
-    data[i].Re -= 10;
+    buffer[i] = log_2 << 2;
+    buffer[i] += scale_weights[i] - 10;
   }
 }
 

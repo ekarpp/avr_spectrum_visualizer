@@ -18,7 +18,7 @@ const int16_t sin_table[3*SAMPLES/4] = {
   0xA57E, 0x9D0F, 0x9593, 0x8F1E, 0x89BF, 0x8584, 0x8277, 0x809F
 };
 
-#if SAMPLES <= 128
+#if SAMPLES <= 256
 const uint8_t inverse_table[SAMPLES-2] = {
 #else
 const uint16_t inverse_table[SAMPLES-2] = {
@@ -31,6 +31,13 @@ const uint16_t inverse_table[SAMPLES-2] = {
    37,  21,  53,  13,  45,  29,  61,   3, 
    35,  19,  51,  11,  43,  27,  59,   7, 
    39,  23,  55,  15,  47,  31
+};
+
+const int8_t scale_weights[SAMPLES/2] = {
+  -22,  -8,  -4,  -2,  -1,   0,   0,   0, 
+    0,   0,   1,   1,   1,   1,   1,   1, 
+    1,   1,   1,   1,   1,   1,   1,   1, 
+    0,   0,   0,   0,   0,   0,   0
 };
 
 #endif

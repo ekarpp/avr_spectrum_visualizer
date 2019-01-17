@@ -3,8 +3,6 @@
 #include "SSD1306.h"
 #include "main.h"
 
-
-
 void init(void)
 {
   /* -------- */
@@ -73,6 +71,7 @@ int main(void)
   init();
 
   complex ADC_data[SAMPLES] = {};
+  int8_t display_buffer[SAMPLES/2 - 1] = {0};
 
 #if SAMPLES <= 128
   uint8_t num_samples = 0;
@@ -81,9 +80,6 @@ int main(void)
 #endif
 
   uint8_t delay;
-
-  /* clears the frame */
-  //ssd1306_update_frame(ADC_data);
 
   /* start the ADC */
   ADCSRA |= (1 << ADEN);
@@ -102,11 +98,8 @@ int main(void)
 
       ADC_data[num_samples].Re = ADCL;
       ADC_data[num_samples].Re |= ADCH << 8;
-      /* remove the DC bias */
-      ADC_data[num_samples].Re -= 512;
       ADC_data[num_samples].Im = 0;
       num_samples += 1;
-
     }
     num_samples = 0;
 
@@ -115,18 +108,18 @@ int main(void)
     //window(ADC_data);
     bit_reversal(ADC_data);
     fft(ADC_data);
-    scale(ADC_data);
+    scale(ADC_data, display_buffer);
 
     /* update frame */
-    ssd1306_update_frame(ADC_data);
+    ssd1306_update_frame(display_buffer);
 
     /* takes ~104 us for audio sample to be ready */
     /* so samples are ~9.6 kHz */
     /* meaning frequency range is approximately 0Hz - 4800Hz */
 
     /* discard old data and start new conversion */
-    ADC_data[num_samples].Re = ADCL;
-    ADC_data[num_samples].Re = ADCH;
+    ADC_data[0].Re = ADCL;
+    ADC_data[0].Re = ADCH;
   }
 
   return 0;

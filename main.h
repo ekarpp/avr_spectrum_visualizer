@@ -19,15 +19,14 @@ void i2c_send(uint8_t);
 
 /* SSD1306.c */
 void ssd1306_send_cmd(uint8_t);
-void ssd1306_update_frame(complex*);
+void ssd1306_update_frame(int8_t*);
 
 /* FFT.c */
 void bit_reversal(complex*);
 void window(complex*);
 void fft(complex*);
-void scale(complex*);
+void scale(complex*, int8_t*);
 int16_t mul_16_bit(int16_t, int16_t);
-int16_t sqrt_32_bit(uint32_t);
 
 /* main.c */
 void init(void);
