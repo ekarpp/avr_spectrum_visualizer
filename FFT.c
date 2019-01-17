@@ -120,21 +120,22 @@ void scale(complex* data)
 #endif
 
   uint32_t tmp;
-  uint16_t max = 0;
+  uint8_t log_2;
   /* just ignore the dc bin for now */
   data[0].Re = 0;
-  for (i = 0; i < SAMPLES/2; i++)
+  for (i = 1; i < SAMPLES/2; i++)
   {
     tmp = (uint32_t) abs(data[i].Re) * abs(data[i].Re);
     tmp += (uint32_t) abs(data[i].Im) * abs(data[i].Im);
-    data[i].Re = sqrt_32_bit(tmp);
-    if (data[i].Re > max)
-      max = data[i].Re;
+    log_2 = 0;
+    while (tmp)
+    {
+      tmp >>= 1;
+      log_2++;
+    }
+    data[i].Re = log_2 << 2;
+    data[i].Re -= 10;
   }
-
-  for (i = 0; i < SAMPLES/2; i++)
-    data[i].Re = (int16_t)((data[i].Re/(double)max)*64);
-
 }
 
 int16_t mul_16_bit(int16_t a, int16_t b)
@@ -154,13 +155,4 @@ int16_t mul_16_bit(int16_t a, int16_t b)
   tmp *= b;
   tmp >>= 15;
   return count == 1 ? -(int16_t) tmp : (int16_t) tmp;
-}
-
-int16_t sqrt_32_bit(uint32_t x)
-{
-  uint32_t g = x;
-  int8_t i;
-  for (i = 20; i < 50; i++)
-    g = (g+x/g)/2;
-  return (int16_t) g;
 }
