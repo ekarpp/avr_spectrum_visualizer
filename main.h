@@ -23,7 +23,6 @@ void ssd1306_update_frame(int8_t*);
 
 /* FFT.c */
 void bit_reversal(complex*);
-void window(complex*);
 void fft(complex*);
 void scale(complex*, int8_t*);
 int16_t mul_16_bit(int16_t, int16_t);

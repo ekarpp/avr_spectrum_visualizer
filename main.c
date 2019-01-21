@@ -104,8 +104,6 @@ int main(void)
     num_samples = 0;
 
     /* do FFT */
-    /* no windowing for now */
-    //window(ADC_data);
     bit_reversal(ADC_data);
     fft(ADC_data);
     scale(ADC_data, display_buffer);

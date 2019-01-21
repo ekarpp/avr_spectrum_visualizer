@@ -2,9 +2,6 @@
 #include "main.h"
 #include "tables.h"
 
-/* index for window table */
-#define WINDOW_i(x) ((x < SAMPLES/2) ? x : SAMPLES/2 - x%(SAMPLES/2))
-
 #define abs(x) ((x < 0) ? -x : x)
 
 void bit_reversal(complex* data)
@@ -25,21 +22,6 @@ void bit_reversal(complex* data)
       data[i] = data[new];
       data[new] = tmp;
     }
-  }
-}
-
-void window(complex* data)
-{
-#if SAMPLES <= 128
-  uint8_t i;
-#else
-  uint16_t i;
-#endif
-
-  for (i = 0; i < SAMPLES; i++)
-  {
-    data->Re = mul_16_bit(data->Re, window_table[WINDOW_i(i)]);
-    data++;
   }
 }
 
@@ -70,7 +52,9 @@ void fft(complex* data)
     {
       /* exp(-2*pi*i*k/t) where k = i and t = SAMPLES/sets */
       /* table is sin(2*pi*x*SAMPLES) so we have to fix indexes accordingly */
-      twiddle.Re = sin_table[i*sets + SAMPLES/4];
+      twiddle.Re = sin_table[(i*sets + SAMPLES/4) % (SAMPLES/2)];
+      if (i*sets >= SAMPLES/4)
+	twiddle.Re = -twiddle.Re;
       twiddle.Im = sin_table[i*sets];
       for (j = 0; j < sets; j++)
       {
@@ -121,8 +105,9 @@ void scale(complex* data, int8_t* buffer)
 
   uint32_t tmp;
   uint8_t log_2;
-  /* just ignore the dc bin for now */
+  /* just ignore the dc bin */
   data++;
+
   for (i = 0; i < SAMPLES/2 - 1; i++)
   {
     tmp = (uint32_t) abs(data[i].Re) * abs(data[i].Re);
@@ -133,8 +118,8 @@ void scale(complex* data, int8_t* buffer)
       tmp >>= 1;
       log_2++;
     }
-    buffer[i] = log_2 << 2;
-    buffer[i] += scale_weights[i] - 10;
+    buffer[i] = log_2 << 4;
+    buffer[i] += scale_weights[i];
   }
 }
 
