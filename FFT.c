@@ -118,7 +118,7 @@ void scale(complex* data, int8_t* buffer)
       tmp >>= 1;
       log_2++;
     }
-    buffer[i] = log_2 << 4;
+    buffer[i] = log_2 << 2;
     buffer[i] += scale_weights[i];
   }
 }

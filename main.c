@@ -1,5 +1,4 @@
 #include <avr/io.h>
-#include <avr/interrupt.h>
 #include "SSD1306.h"
 #include "main.h"
 
@@ -93,7 +92,7 @@ int main(void)
       while (!(ADCSRA&(1 << ADIF)));
       /* this is here because my mic is too slow */
       /* it can and should be removed */
-      for (delay = 0; delay < 200; delay++)
+      for (delay = 0; delay < 255; delay++)
 	asm volatile("nop");
 
       ADC_data[num_samples].Re = ADCL;
